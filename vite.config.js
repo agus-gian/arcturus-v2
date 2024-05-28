@@ -6,9 +6,13 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/sass/app.scss',
-                'resources/js/app.js',
+                'resources/js/auth.js',
             ],
             refresh: true,
+            resolve: name => {
+                const pages = import.meta.glob('./Pages/**/*.jsx', { eager: true })
+                return pages[`./Pages/${name}.jsx`]
+            },
         }),
     ],
 });
