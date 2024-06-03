@@ -2,7 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\User\UserResource;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -36,7 +40,19 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            //
+            'appName' => env('APP_NAME'),
+            'authUser' => $this->_authUser(),
+            'currentRouteName' => Route::currentRouteName(),
+            'getReqQuery' => $request->query(),
         ]);
+    }
+
+    private function _authUser(): ?UserResource
+    {
+        if (Auth::check()) {
+            return new UserResource(Auth::user());
+        }
+
+        return null;
     }
 }

@@ -6,7 +6,7 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.jsx'])
     @inertiaHead
 </head>
-<body>
+<body data-theme="default" data-layout="fluid" data-sidebar-position="left" data-sidebar-layout="default">
     @inertia
 </body>
 </html>

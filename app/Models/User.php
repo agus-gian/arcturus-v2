@@ -6,20 +6,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
+    protected $guarded = [
+        'id',
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
     /**
@@ -43,5 +46,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function profile_picture_url(): string
+    {
+        return 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&background=eef3ff&color=1761fd&bold=true';
+    }
+
+    public function role_name()
+    {
+        return $this->getRoleNames()[0];
+    }
+
+    public function role_name_label(): string
+    {
+        return Str::of($this->role_name())->replace('-',' ')->title();
     }
 }
