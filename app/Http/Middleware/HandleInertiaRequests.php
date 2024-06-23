@@ -44,6 +44,11 @@ class HandleInertiaRequests extends Middleware
             'authUser' => $this->_authUser(),
             'currentRouteName' => Route::currentRouteName(),
             'getReqQuery' => $request->query(),
+            'isSuperAdmin' => fn () => $request->cookie('isSuperAdmin') ? filter_var($request->cookie('isSuperAdmin'), FILTER_VALIDATE_BOOLEAN) : false,
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error')
+            ],
         ]);
     }
 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -25,7 +27,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/dashboard';
+    // protected $redirectTo = '/dashboard';
 
     /**
      * Create a new controller instance.
@@ -36,5 +38,26 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
+    }
+
+    protected function authenticated(Request $request, $user): RedirectResponse
+    {
+        if ($user->role_name() == 'affiliate') {
+            return redirect()->route('dashboard.affiliate.home.index');
+        }
+
+        if ($user->role_name() == 'travel-agent') {
+            return redirect()->route('dashboard.travel_agent.home.index');
+        }
+
+        if ($user->role_name() == 'admin-hotel') {
+            return redirect()->route('dashboard.admin_hotel.home.index');
+        }
+
+        if ($user->role_name() == 'staff-hotel') {
+            return redirect()->route('dashboard.staff_hotel.home.index');
+        }
+
+        return redirect()->route('dashboard.admin.home.index');
     }
 }

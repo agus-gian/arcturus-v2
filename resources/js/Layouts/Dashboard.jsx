@@ -1,11 +1,52 @@
-import React, {useState} from 'react';
-import {usePage} from "@inertiajs/react";
-import {Settings} from 'react-feather';
-import SuperAdmin from "@/Components/MenuSidebars/SuperAdminSidebar.jsx";
+import React, { useEffect, useState } from 'react';
+import { Link, usePage } from "@inertiajs/react";
+import { Monitor, Settings } from 'react-feather';
+import SuperAdminSidebar from "@/Components/MenuSidebars/SuperAdminSidebar.jsx";
+import AffiliateSidebar from '@/Components/MenuSidebars/AffiliateSidebar';
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import TransportSidebar from "@/Components/MenuSidebars/TransportSidebar.jsx";
 
 export default function Dashboard({ children }) {
-    const { appName, authUser } = usePage().props;
+    const { appName, authUser, flash, isSuperAdmin } = usePage().props;
     const [isCollapse, setIsCollapse] = useState(false);
+    const [isModalLogoutOpen, setIsModalLogoutOpen] = useState(false);
+
+    useEffect(() => {
+        if (flash.success) {
+            toast.success(flash.success);
+        }
+
+        if (flash.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
+
+    const ModalLogout = () => {
+        return (
+            <>
+                <div className="position-absolute top-50 start-50 translate-middle" style={{ display: `${isModalLogoutOpen ? 'block' : 'none'}`, zIndex: 1060 }}>
+                    <div className="alert alert-primary alert-outline alert-dismissible">
+                        <div className="alert-message">
+                            <h4 className="alert-heading">Sign Out</h4>
+                            <p>Are you realy want to signg out?</p>
+                            <hr />
+                            <div className="row gap-1">
+                                <div className='col'>
+                                    <Link href='/logout' className="btn btn-pill btn-primary w-100" as='button' type='button' method='post'>Yes</Link>
+                                </div>
+                                <div className='col'>
+                                    <button className="btn btn-pill btn-danger w-100" type="button" onClick={() => setIsModalLogoutOpen(false)}>No</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="modal-backdrop fade show"></div>
+            </>
+        )
+    }
 
     return (
         <>
@@ -36,16 +77,34 @@ export default function Dashboard({ children }) {
                         </div>
 
                         <ul className="sidebar-nav">
+                            {(isSuperAdmin && authUser.role_name !== 'super-admin') && (
+                                <>
+                                    <li className="sidebar-header">
+                                        Super Admin
+                                    </li>
+
+                                    <li className={`sidebar-item`}>
+                                        <Link className='sidebar-link' href='/dashboard/backdoor/redirect/admin'>
+                                            <Monitor className="align-middle" width="19" height="19" /> <span className="align-middle">Admin Dashboard</span>
+                                        </Link>
+                                    </li>
+                                </>
+                            )}
+
                             <li className="sidebar-header">
                                 Menu
                             </li>
 
-                            {authUser.role_name === 'super-admin' ? (
-                                <SuperAdmin />
-                            ) : authUser.role_name === 'transport' ? (
-                                <SuperAdmin />
-                            ) : (
-                                <SuperAdmin />
+                            {authUser.role_name === 'super-admin' && (
+                                <SuperAdminSidebar />
+                            )}
+
+                            {authUser.role_name === 'affiliate' && (
+                                <AffiliateSidebar />
+                            )}
+
+                            {authUser.role_name === 'transport' && (
+                                <TransportSidebar />
                             )}
                         </ul>
                     </div>
@@ -67,9 +126,9 @@ export default function Dashboard({ children }) {
                                         <a className='dropdown-item' href='#'>
                                             <i className="align-middle me-1" data-feather="user"></i> Profile
                                         </a>
-                                        <a className="dropdown-item" href="#">
+                                        <button type='button' className="dropdown-item" onClick={() => setIsModalLogoutOpen(true)}>
                                             <i className="align-middle me-1" data-feather="log-out"></i> Log out
-                                        </a>
+                                        </button>
                                     </div>
                                 </li>
                             </ul>
@@ -109,6 +168,12 @@ export default function Dashboard({ children }) {
                     </footer>
                 </div>
             </div>
+
+            {isModalLogoutOpen && (
+                <ModalLogout />
+            )}
+
+            <ToastContainer />
         </>
     )
 }
